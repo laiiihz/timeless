@@ -1,5 +1,7 @@
 # TIMELESS ⌛️
 
+a git log command line tool made by dart.
+
 ## build
 
 ```shell

@@ -6,10 +6,19 @@ import 'package:common_utils/common_utils.dart';
 void main(List<String> arguments) async {
   final argParser = ArgParser();
   argParser.addOption('path', abbr: 'p', help: '路径，默认为当前目录');
-  argParser.addOption('author', abbr: 'a', help: '作者');
-  argParser.addFlag('month', abbr: 'm', help: 'month', defaultsTo: false);
-  argParser.addFlag('help', abbr: 'h', help: 'Help usage', defaultsTo: false);
+  argParser.addOption('author', abbr: 'a', help: '作者(必选项)');
+  argParser.addOption('output', abbr: 'o', help: '导出文件');
+  argParser.addFlag('month', abbr: 'm', help: '月历史', defaultsTo: false);
+  argParser.addFlag('help', abbr: 'h', help: '帮助文档', defaultsTo: false);
+
   var results = argParser.parse(arguments);
+
+  if (results.wasParsed('help')) {
+    print('example:\n timeless -a laiiihz\n');
+    print(argParser.usage);
+    return;
+  }
+
   var path = results['path'] as String;
   var author = results['author'] as String;
   if (author?.isEmpty ?? true) {
@@ -45,6 +54,22 @@ void main(List<String> arguments) async {
     var item = _Item.parse(i, full: results['month'] as bool);
     _items.add(item);
     print(item);
+  }
+
+  var output = results['output'] as String;
+  if (output?.isNotEmpty ?? false) {
+    var file = File(output);
+    if (!(await file.exists())) {
+      await file.create();
+    }
+    await file.open();
+    var temp = '';
+    temp += '时间,备注,添加,删除\n';
+    for (var i in _items) {
+      temp += i.toString();
+      temp += '\n';
+    }
+    await file.writeAsString(temp);
   }
 }
 
