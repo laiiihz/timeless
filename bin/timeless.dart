@@ -7,6 +7,7 @@ void main(List<String> arguments) async {
   final argParser = ArgParser();
   argParser.addOption('path', abbr: 'p', help: '路径，默认为当前目录');
   argParser.addOption('author', abbr: 'a', help: '作者');
+  argParser.addFlag('month', abbr: 'm', help: 'month', defaultsTo: false);
   argParser.addFlag('help', abbr: 'h', help: 'Help usage', defaultsTo: false);
   var results = argParser.parse(arguments);
   var path = results['path'] as String;
@@ -21,12 +22,15 @@ void main(List<String> arguments) async {
 
   print(path);
   var date = DateTime.now();
+  if (results['month']) {
+    date = DateTime(date.year, date.month);
+  }
   print((await Process.run('pwd', [])).stdout);
   var result = await Process.run(
     'git',
     [
       'log',
-      '--author=laiiihz',
+      '--author=$author',
       '--after=${DateUtil.formatDate(date, format: 'yyyy-M-d')} 0:00',
       '--date=format:%Y-%m-%d %H:%M:%S',
       '--shortstat',
@@ -38,7 +42,7 @@ void main(List<String> arguments) async {
   String rawResult = result.stdout;
   var _items = [];
   for (var i in rawResult.split('\n\n')) {
-    var item = _Item.parse(i);
+    var item = _Item.parse(i, full: results['month'] as bool);
     _items.add(item);
     print(item);
   }
@@ -50,6 +54,7 @@ class _Item {
   String fileChange = '';
   String add = '';
   String delete = '';
+  bool fullPath = false;
   _Item({
     this.date,
     this.commit,
@@ -58,7 +63,9 @@ class _Item {
     this.delete,
   });
 
-  _Item.parse(String raw) {
+  _Item.parse(String raw, {bool full = false}) {
+    fullPath = full;
+
     var midware = raw.replaceAll('\n', '@');
     if (midware.isNotEmpty && midware[0] == '@') {
       midware = midware.replaceFirst('@', '');
@@ -84,7 +91,10 @@ class _Item {
 
   @override
   String toString() {
-    var dateTime = DateUtil.formatDate(date, format: 'HH:mm');
+    var dateTime = DateUtil.formatDate(
+      date,
+      format: fullPath ? 'yyyy-MM-dd HH:mm' : 'HH:mm',
+    );
     var displayCommit = commit.replaceAll(',', ' ');
     return '$dateTime,$displayCommit,$add,$delete';
   }
