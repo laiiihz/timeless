@@ -1,4 +1,7 @@
-A simple command-line application.
+# TIMELESS ⌛️
 
-Created from templates made available by Stagehand under a BSD-style
-[license](https://github.com/dart-lang/stagehand/blob/master/LICENSE).
+## build
+
+```shell
+dart2native bin/timeless.dart -o bin/timeless.app
+```
