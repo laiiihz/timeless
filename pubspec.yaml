@@ -11,6 +11,8 @@ dependencies:
   args: ^2.3.0
   common_utils: ^2.0.2
 
+dev_dependencies: 
+  lints: ^1.0.1
 
 executables:
   timeless: 
