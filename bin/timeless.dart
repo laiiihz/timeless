@@ -19,8 +19,8 @@ void main(List<String> arguments) async {
     return;
   }
 
-  var path = results['path'] as String;
-  var author = results['author'] as String;
+  var path = results['path'] as String?;
+  var author = results['author'] as String?;
   if (author?.isEmpty ?? true) {
     print('AUTHOR CANT EMPTY');
     exit(0);
@@ -51,14 +51,14 @@ void main(List<String> arguments) async {
   String rawResult = result.stdout;
   var _items = [];
   for (var i in rawResult.split('\n\n')) {
-    var item = _Item.parse(i, full: results['month'] as bool);
+    var item = _Item.parse(i, full: results['month'] as bool?);
     _items.add(item);
     print(item);
   }
 
-  var output = results['output'] as String;
+  var output = results['output'] as String?;
   if (output?.isNotEmpty ?? false) {
-    var file = File(output);
+    var file = File(output!);
     if (!(await file.exists())) {
       await file.create();
     }
@@ -74,12 +74,12 @@ void main(List<String> arguments) async {
 }
 
 class _Item {
-  DateTime date;
-  String commit = '';
-  String fileChange = '';
-  String add = '';
-  String delete = '';
-  bool fullPath = false;
+  DateTime? date;
+  String? commit = '';
+  String? fileChange = '';
+  String? add = '';
+  String? delete = '';
+  bool? fullPath = false;
   _Item({
     this.date,
     this.commit,
@@ -88,7 +88,7 @@ class _Item {
     this.delete,
   });
 
-  _Item.parse(String raw, {bool full = false}) {
+  _Item.parse(String raw, {bool? full = false}) {
     fullPath = full;
 
     var midware = raw.replaceAll('\n', '@');
@@ -104,11 +104,11 @@ class _Item {
       for (var item in changes) {
         if (item.contains('insertions(+)')) {
           add = item.replaceAll('insertions(+)', '');
-          add = add.replaceAll(' ', '');
+          add = add!.replaceAll(' ', '');
         }
         if (item.contains('deletions(-)')) {
           delete = item.replaceAll('deletions(-)', '');
-          delete = delete.replaceAll(' ', '');
+          delete = delete!.replaceAll(' ', '');
         }
       }
     }
@@ -118,9 +118,9 @@ class _Item {
   String toString() {
     var dateTime = DateUtil.formatDate(
       date,
-      format: fullPath ? 'yyyy-MM-dd HH:mm' : 'HH:mm',
+      format: fullPath! ? 'yyyy-MM-dd HH:mm' : 'HH:mm',
     );
-    var displayCommit = commit.replaceAll(',', ' ');
+    var displayCommit = commit!.replaceAll(',', ' ');
     return '$dateTime,$displayCommit,$add,$delete';
   }
 }
